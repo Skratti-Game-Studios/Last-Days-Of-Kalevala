@@ -9,7 +9,7 @@
 '... here it is
 
 'Code is written in QB64, and should be in some .bas file.
-
+'''
 'Last Days Of Kalevala
 
 'DIM allowGL AS _BYTE
@@ -132,8 +132,9 @@ backlayer& = _LOADIMAGE("./nightsky.png", HW_images)
 
 END IF anna_x = 3200 anna_y = 448 anna_width = 32 anna_height = 64
 
-main: DO
-
+main: 
+DO
+'main game loop here. make it a bare minimum VM, and implement the logic elsewhere
 LOOP
 
 SUB RENDER 'Software render code here
@@ -144,7 +145,14 @@ END SUB
 
 'OpenGL code starts here 'The code in this area will be run automatically at ~60fps 'END SUB
 
-FUNCTION RectColl (Ax1, Ay1, Ax2, Ay2, Bx1, By1, Bx2, By2) RectColl = 0 IF Ax2 >= Bx1 AND Ax1 <= Bx2 THEN 'first check if on the same x-axis IF Ay2 >= By1 AND Ay1 <= By2 THEN RectColl = 1 END IF END IF END FUNCTION
-
+FUNCTION RectColl (Ax1, Ay1, Ax2, Ay2, Bx1, By1, Bx2, By2) 
+RectColl = 0 
+IF Ax2 >= Bx1 AND Ax1 <= Bx2 THEN 
+'first check if on the same x-axis 
+IF Ay2 >= By1 AND Ay1 <= By2 THEN RectColl = 1 
+END IF
+END IF 
+END FUNCTION
+'''
 
 
