@@ -1,6 +1,8 @@
 
 
-'# Last-Days-Of-Kalevala ' Adventurous metroidvania open world game based on Finnish pantheon of gods and ancienct Finnish mythology. What will you do at the end of everything? Sisulla 'siitä selviää!
+# Last-Days-Of-Kalevala 
+
+'Adventurous metroidvania open world game based on Finnish pantheon of gods and ancienct Finnish mythology. What will you do at the end of everything? Sisulla 'siitä selviää!
 
 'GPL license only applys to code -- not graphics, sound, music, video or other multimedia.
 
@@ -9,7 +11,9 @@
 '... here it is
 
 'Code is written in QB64, and should be in some .bas file.
+
 ´´´
+
 'Last Days Of Kalevala
 
 'DIM allowGL AS _BYTE
@@ -153,6 +157,7 @@ IF Ay2 >= By1 AND Ay1 <= By2 THEN RectColl = 1
 END IF
 END IF 
 END FUNCTION
+
 ´´´
 
 
