@@ -9,7 +9,7 @@ DIM anna_x AS INTEGER
 DIM anna_y AS INTEGER
 DIM anna_width AS INTEGER
 DIM anna_height AS INTEGER
-
+DIM key$
 
 
 
@@ -18,23 +18,32 @@ DIM anna_height AS INTEGER
 'perform startup routines like loading assets
 
 setup:
-softRender = -1 'If true game will render in software instead of OpenGL.. ie. use "SUB RENDER" instead of "SUB _GL"
+rendermode = 1
 
-'allowGL = -1 'sets allowGL to true so SUB _GL can run
+IF rendermode = 0 THEN
+    'allowGL = -1 'sets allowGL to true so SUB _GL can run
+END IF
 
-screenRes_x = 1920 'Real horizontal resolution of the screen
-screenRes_y = 1080 'Real vertical resolution of the screen
+
+screenRes_x = 1280 'Real horizontal resolution of the screen
+screenRes_y = 720 'Real vertical resolution of the screen
 widescreen = 1 '0 if 4:3
 virtualRes_x = 320
-virtualRes_y = 180 'use 240 for 4:3 displays
-IF widescreen = 0 THEN virtualRes_y = 240
+virtualRes_y = 180
+IF screenRes_x / screenRes_y > 1.5 THEN virtualRes_y = 240 AND widescreen = 0 'use 240 for 4:3 displays
 HW_images = 32 '33 if using HW images, 32 if not
 
 area = 0
 
-gameimage& = _NEWIMAGE(320, 180, HW_images)
-gamewin& = _NEWIMAGE(1280, 720, HW_images)
-anna_sprites&(50) = _NEWIMAGE(32, 64, HW_images) 'USE (xx, yy, 33) for hardware images
+'gameimage& = _NEWIMAGE(virtualRes_x, virtualRes_y, HW_images)
+'gamewin& = _NEWIMAGE(screeRes_x, screenRes_y, HW_images)
+gameimage& = _NEWIMAGE(320, 180, 32)
+gamewin& = _NEWIMAGE(1280, 720, 32)
+
+DIM anna_sprites&(50)
+anna_sprites&(50) = _NEWIMAGE(32, 64, 32) 'USE (xx, yy, 33) for hardware images
+
+SCREEN gamewin&
 
 area:
 IF area = 0 THEN
@@ -43,14 +52,21 @@ IF area = 0 THEN
 
 END IF
 
+newgame:
+'CHOOSE YOUR PLAYER BULL comes here...
 active_player$ = "anna"
 
 change_area:
 IF area = 1 THEN
     'put this stuff in to a file
 
-    mapfile$ = "./LevelData/map1.csv"
-    background$ = "nightsky.png"
+    mapfile$ = "./LevelData/map1.png"
+    'TILED won't export in format that could be just a memory block, so just for the time being i'm revertin back to full bitmaps
+    'Do a CSV to bytemap converter (8-bit bitmap) and use tilebased maps later
+
+    background$ = "./graphics/nightsky.png"
+
+    map& = mapfile
     'anim_a$ = "anim_a1.png"
     'anim_b$ = "anim_b1.png"
     'anim_c$ = "anim_c1.png"
@@ -140,26 +156,104 @@ IF area = 1 THEN
     DIM anna_doublejump_anim AS INTEGER
     DIM anna_doublejump_anim_t AS INTEGER
 
+    '''LOAD AREAS DEF FILE area1.def -- def files list npc files to load
+    '''LOAD NPC files -- npc files have animations for states and scripts that define behavior between npc and reactions to player characters
 
-    backlayer& = _LOADIMAGE("./nightsky.png", HW_images)
 
 
+    map& = _LOADIMAGE("./LevelData/map1.png", 32)
+    back& = _LOADIMAGE("./graphics/nightsky.png", 32)
+    parallax& = _LOADIMAGE("./graphics/paskatausta2.png", 32)
 
+
+    anna_x = 3200
+    anna_y = 580
+    anna_width = 32
+    anna_height = 64
+    anna_current% = 0
 
 END IF
-anna_x = 3200
-anna_y = 448
-anna_width = 32
-anna_height = 64
 
-
-
-
-
+SCREEN gamewin&
 main:
 DO
+    softrender: 'this stuff belongs to a sub
+    _SOURCE back&
+    _DEST gameimage&
+    _PUTIMAGE
+    '_SOURCE map&
+    cam_x = anna_x - 136
+    cam_y = anna_y - 57
+    IF cam_x < 0 THEN cam_x = 0
+    IF cam_y < 0 THEN cam_y = 0
+    parallax_x = INT(cam_x / 4)
+    parallax_y = INT(cam_y / 4)
+    _PUTIMAGE (0, 0)-(319, 179), parallax&, gameimage&, (parallax_x, parallax_y)-(parallax_x + 319, parallax_y + 179)
+    _PUTIMAGE (0, 0)-(319, 179), map&, gameimage&, (cam_x, cam_y)-(cam_x + 319, cam_y + 179)
+    _PUTIMAGE (136, 57), anna_sprites&(anna_current%), gameimage&
+    _SOURCE gameimage&
+    _DEST gamewin&
+    _PUTIMAGE
 
-LOOP
+    annacount% = annacount% + 1
+    IF annacount% = 5 THEN
+        anna_current% = anna_current% + 1
+        IF anna_current% = 20 THEN anna_current% = 0
+        annacount% = 0
+    END IF
+
+
+
+
+
+
+    IF key$ = "a" THEN anna_x = anna_x - 3
+    IF key$ = "d" THEN anna_x = anna_x + 3
+    IF key$ = "w" THEN anna_y = anna_y - 3
+    IF key$ = "s" THEN anna_y = anna_y + 3
+    checkinput:
+    key$ = INKEY$
+    'check inputs that control player characters
+    npc_turn:
+    'VM that controls npc's according to their script file
+    'files in gameX are written every time game is saved, or
+    'npc script-files are something like this:
+    '
+    'type
+    'name
+    'affiliation
+    'hp 100
+    'anna neutral 'affiliations fame is added when in contact
+    'jonne neutral
+    'start XXXX YYYY heading
+    '
+    'newstate state1
+    'allstates
+    '
+    'state1
+    'idle right
+    'newstate state2 5 600 '' means 5% prob every 600 frames to change to state2
+    '
+    'end1
+    'state2
+    'walk left downstairs 'if any stairs happen to be on the way use ones you can go down
+    'when stop state3
+    'when 1240 state3
+    '
+    'state3
+    'backtostart
+    '
+    DO
+        npc_count% = 0
+        count% = 1
+    LOOP UNTIL count% > npc_count%
+    enemy_turn:
+    'Minor, non-story and respawning enemies that have no interactions or dialog
+
+
+    _DISPLAY
+LOOP UNTIL key$ = CHR$(27)
+
 
 SUB RENDER
     'Software render code here
