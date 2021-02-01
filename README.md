@@ -9,7 +9,7 @@
 '... here it is
 
 'Code is written in QB64, and should be in some .bas file.
-'''
+´´´
 'Last Days Of Kalevala
 
 'DIM allowGL AS _BYTE
@@ -153,6 +153,7 @@ IF Ay2 >= By1 AND Ay1 <= By2 THEN RectColl = 1
 END IF
 END IF 
 END FUNCTION
-'''
+´´´
+
 
 
