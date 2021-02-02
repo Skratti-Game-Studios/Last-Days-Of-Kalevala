@@ -95,12 +95,12 @@ IF area = 1 THEN
     anna_sprites&(17) = _LOADIMAGE("./sprites/anna/Anna18.png", HW_images)
     anna_sprites&(18) = _LOADIMAGE("./sprites/anna/Anna19.png", HW_images)
     anna_sprites&(19) = _LOADIMAGE("./sprites/anna/Anna20.png", HW_images)
-    anna_sprites&(20) = _LOADIMAGE("./sprites/anna/Anna21.png", HW_images)
-    anna_sprites&(21) = _LOADIMAGE("./sprites/anna/Anna22.png", HW_images)
-    anna_sprites&(22) = _LOADIMAGE("./sprites/anna/Anna23.png", HW_images)
-    anna_sprites&(23) = _LOADIMAGE("./sprites/anna/Anna24.png", HW_images)
-    anna_sprites&(24) = _LOADIMAGE("./sprites/anna/Anna25.png", HW_images)
-    anna_sprites&(25) = _LOADIMAGE("./sprites/anna/Anna26.png", HW_images)
+    anna_sprites&(20) = _LOADIMAGE("./sprites/anna/Anna_idle1.png", HW_images)
+    anna_sprites&(21) = _LOADIMAGE("./sprites/anna/Anna_idle2.png", HW_images)
+    anna_sprites&(22) = _LOADIMAGE("./sprites/anna/Anna_idle3.png", HW_images)
+    anna_sprites&(23) = _LOADIMAGE("./sprites/anna/Anna_idle4.png", HW_images)
+    'anna_sprites&(24) = _LOADIMAGE("./sprites/anna/Anna25.png", HW_images)
+    'anna_sprites&(25) = _LOADIMAGE("./sprites/anna/Anna26.png", HW_images)
 
     DIM anna_idle_frames AS INTEGER
     DIM anna_walk_frames AS INTEGER
@@ -170,7 +170,9 @@ IF area = 1 THEN
     anna_y = 580
     anna_width = 32
     anna_height = 64
-    anna_current% = 0
+    anna_current% = 0 'current sprite nro.
+    anna_heading = 1 'right left=-1
+
 
 END IF
 
@@ -190,29 +192,61 @@ DO
     parallax_y = INT(cam_y / 4)
     _PUTIMAGE (0, 0)-(319, 179), parallax&, gameimage&, (parallax_x, parallax_y)-(parallax_x + 319, parallax_y + 179)
     _PUTIMAGE (0, 0)-(319, 179), map&, gameimage&, (cam_x, cam_y)-(cam_x + 319, cam_y + 179)
-    _PUTIMAGE (136, 57), anna_sprites&(anna_current%), gameimage&
+
     _SOURCE gameimage&
     _DEST gamewin&
     _PUTIMAGE
 
-    annacount% = annacount% + 1
-    IF annacount% = 5 THEN
-        anna_current% = anna_current% + 1
-        IF anna_current% = 20 THEN anna_current% = 0
-        annacount% = 0
+    animate_anna:
+    IF anna_state = 1 THEN 'idle
+
+        IF annacount% = anna_idle_anim_t(anna_current%) THEN
+            annacount% = 0
+            anna_current% = anna_current% + 1
+            IF anna_current% = anna_idle_frames THEN anna_current% = 0
+        END IF
+    ELSEIF anna_state = 2 THEN 'walk
+        'walk
+    ELSEIF anna_state = 3 THEN 'jump
+        'jump
     END IF
 
+    _PUTIMAGE (136, 57), anna_sprites&(anna_current%), gameimage& 'Wont work right near the level borders!!!
+    'annacount% = annacount% + 1
+    'IF annacount% = 5 THEN
+    '    anna_current% = anna_current% + 1
+    '    IF anna_current% = 20 THEN anna_current% = 0
+    '    annacount% = 0
+    'END IF
 
 
 
 
 
-    IF key$ = "a" THEN anna_x = anna_x - 3
-    IF key$ = "d" THEN anna_x = anna_x + 3
-    IF key$ = "w" THEN anna_y = anna_y - 3
-    IF key$ = "s" THEN anna_y = anna_y + 3
+
+    IF key$ = "a" THEN anna_x = anna_x - 1
+    IF key$ = "d" THEN anna_x = anna_x + 1
+    IF key$ = "w" THEN anna_y = anna_y - 1
+    IF key$ = "s" THEN anna_y = anna_y + 1
+
     checkinput:
     key$ = INKEY$
+    'anna_state values 1=idle, 2=walk, 3=jump
+    'IF _KEYDOWN(CVI(CHR$(0) + "P")) THEN y = y + 1 '_KEYDOWN(20480)
+    IF _KEYDOWN(CVI(CHR$(0) + "H")) THEN next_anna_state = 3 '_KEYDOWN(18432)
+    IF _KEYDOWN(CVI(CHR$(0) + "K")) THEN '_KEYDOWN(19200)
+        anna_x = anna_x - 1
+        IF anna_state < 3 THEN anna_state = 2
+        anna_heading = -1 'left
+
+    ELSEIF _KEYDOWN(CVI(CHR$(0) + "M")) THEN '_KEYDOWN(19712)
+        anna_x = anna_x + 1
+        IF anna_state < 3 THEN anna_state = 2
+        anna_heading = 1 'right
+    ELSE
+        IF anna_state < 3 THEN anna_state = 1
+    END IF
+
     'check inputs that control player characters
     npc_turn:
     'VM that controls npc's according to their script file
