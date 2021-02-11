@@ -74,9 +74,41 @@ IF area = 1 THEN
     'anim_a$ = "anim_a1.png"
     'anim_b$ = "anim_b1.png"
     'anim_c$ = "anim_c1.png"
-    'parallax_a$ = "para_a1.png"
+    'parallax_a$ = "para_a1.png"                               d
     'parallax_b$ = "para_b1.png"
     'parallax_c$ = "para_c1.png"
+
+    projectile_items_n = 100
+    DIM projectile_item_x(projectile_items_n) AS _UNSIGNED INTEGER
+    DIM projectile_item_y(projectile_items_n) AS _UNSIGNED INTEGER
+    DIM projectile_item_exist(projectile_items_n) AS _UNSIGNED INTEGER
+    DIM projectile_item_name(projectile_items_n) AS STRING
+    DIM projectile_item_power(projectile_items_n) AS _UNSIGNED INTEGER
+    DIM projectile_item_weight(projectile_items_n) AS _UNSIGNED INTEGER
+
+
+    count% = 0
+    DO
+        projectile_item_x(count%) = 2500 + count% * 10
+        projectile_item_y(count%) = 1000 + count% * 3
+        projectile_item_exist(count%) = 1
+        projectile_item_name(count%) = "rock"
+        count% = count% + 1
+    LOOP UNTIL count% = projectile_items_n - 50
+
+    DO
+        projectile_item_x(count%) = 2800 + count% * 10
+        projectile_item_y(count%) = 900 + count% * 3
+        projectile_item_exist(count%) = 1
+        projectile_item_name(count%) = "rock"
+        count% = count% + 1
+
+    LOOP UNTIL count% = projectile_items_n
+    rock_sprite& = _LOADIMAGE("./sprites/items/rock.png", HW_images) '' WHEN YOU PUT THIS TO SUB, COUNT ITEMS and LOAD EVERY "name".png
+    ''FOR EVERY ITEM... ie. rock.png, rock+1.png, 8ball.png, brick+3.png etc...
+
+    ''AGAIN, compare against the names of items, and load a file for every named item.
+
 
     'PUT THIS SHIT IN A SUB AND DO THE SAME TO OTHER CHARACTER AND OBJECT DEFINITIONS
     anna_sprites&(0) = _LOADIMAGE("./sprites/anna/anna_walk1.png", HW_images) '
@@ -119,7 +151,7 @@ IF area = 1 THEN
     anna_prejump_frames = 2
     anna_jump_frames = 8
     anna_high_frames = 5
-    anna_fall_frames = 2
+    anna_fall_frames = 3
 
     DIM anna_idle_anim(anna_idle_frames - 1) AS INTEGER 'as in frame number
     DIM anna_idle_anim_t(anna_idle_frames - 1) AS INTEGER 'as in how many frames
@@ -192,11 +224,11 @@ IF area = 1 THEN
     DIM anna_fall_anim_t(anna_fall_frames - 1) AS INTEGER
 
     anna_fall_anim(0) = 17
-    anna_fall_anim_t(0) = 5
+    anna_fall_anim_t(0) = 3
     anna_fall_anim(1) = 18
-    anna_fall_anim_t(1) = 5
-    'anna_fall_anim(2) = 19
-    'anna_fall_anim_t(2) = 2
+    anna_fall_anim_t(1) = 3
+    anna_fall_anim(2) = 19
+    anna_fall_anim_t(2) = 3
 
 
 
@@ -217,7 +249,24 @@ IF area = 1 THEN
     map& = _LOADIMAGE("./LevelData/map1.png", 32)
     back& = _LOADIMAGE("./graphics/nightsky.png", 32)
     parallax& = _LOADIMAGE("./graphics/paskatausta2.png", 32)
+    original_map& = map&
+    ''HERE AGAIN!!! TOTALLY THE WRONG WAY AND PLACE TO DRAW ITEMS ANYWHERE... FIX FIX FIX...
+    count% = 0
+    DO
+        _PUTIMAGE (projectile_item_x(count%) - 4, projectile_item_y(count%) - 4), rock_sprite&, map&
+        count% = count% + 1
+    LOOP UNTIL count% = projectile_items_n
+    count% = 0
 
+
+    draw_projectiles: '''LIKE OTHER THIS KIND OF SHIT... TO A SUB, OR FILE MAYBE!
+    'also, this stuff should be in the main loop and not here, or at least on their own layer.
+    'count% = 0
+    'DO
+    '    _PUTIMAGE (projectile_item_x(count%) + 4, projectile_item_y(count%) + 4), rock_sprite&, gameimage& 'Wont work right near the level borders!!!
+
+    '    count% = count% + 1
+    'LOOP UNTIL count% = projectile_items_n
 
     anna_x = 3000
     anna_y = 400
@@ -373,7 +422,26 @@ DO
     '    annacount% = 0
     'END IF
 
+    ''''OK!!! AT LEAST THE COLLISION BOX IS WRONG, BUT WE'RE STILL PROBABLY MISSING SOMETHING ELSE....
 
+    'CheckItemCollisions: ''' GET TIS SIT OUTTA HIER!!!!
+    'count% = 0
+    'DO
+    '    IF anna_x >= projectile_item_x(count%) - 4 THEN
+    '        IF anna_x <= projectile_item_x(count%) + 4 THEN
+    '            IF anna_y >= projectile_item_y(count%) - 4 THEN
+    '                IF anna_y <= projectile_item_y + 4 THEN
+    '                    projectile_exists(count%) = 0
+    '!!!!!!!!!!!!!!!!! WHAT IS THE FREAKING PROBLEM HERE!!!
+    '                    _PUTIMAGE (projectile_item_x(count% - 4), projectile_item_y(count% - 4))-(projectile_item_x(count% + 3), projectile_item_y(count% + 3)), original_map&, gameview&
+
+    '                END IF
+    '            END IF
+    '        END IF
+    '    END IF
+    '    count% = count% + 1
+    'LOOP UNTIL count% = projectile_items_n
+    'count% = 0
 
 
 
